@@ -12,19 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-/* 
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.wpilibj.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
-*/
-
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule frontLeft = new SwerveModule(
             Constants.DriveConstants.kFrontLeftDriveMotorPort,
@@ -112,10 +99,46 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.normalizeWheelSpeeds(desiredStates, Constants.DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
         frontLeft.setDesiredState(desiredStates[0]);
         frontRight.setDesiredState(desiredStates[1]);
         backLeft.setDesiredState(desiredStates[2]);
         backRight.setDesiredState(desiredStates[3]);
+
+        readEncoderValues();
+    }
+
+    public void testDriveMotors(){
+        double s = .15;
+        frontLeft.setDriveMotorSpeedManual(s);
+        frontRight.setDriveMotorSpeedManual(s);
+        backLeft.setDriveMotorSpeedManual(s);
+        backRight.setDriveMotorSpeedManual(s);
+    }
+
+    public void testTurn90(){
+        SwerveModuleState testM = new SwerveModuleState( 0.3, new Rotation2d( Math.PI / 2) );
+        SwerveModuleState[] states90 = { testM, testM, testM, testM};
+        setModuleStates(states90);
+
+    }
+
+     public void readEncoderValues(){
+        SmartDashboard.putNumber("BackRightEncoder", backRight.getAbsoluteEncoderRad());
+        SmartDashboard.putNumber("FrontRightEncoder", frontRight.getAbsoluteEncoderRad());
+        SmartDashboard.putNumber("BackLeftEncoder", backLeft.getAbsoluteEncoderRad());
+        SmartDashboard.putNumber("FrontLeftEncoder", frontLeft.getAbsoluteEncoderRad());
+     }
+
+    public void testTurnMotors(){
+        double s = .2;
+        frontLeft.setTurnMotorSpeedManual(s);
+        frontRight.setTurnMotorSpeedManual(s);
+        backLeft.setTurnMotorSpeedManual(s);
+        backRight.setTurnMotorSpeedManual(s);
+    }
+
+    public void initDefaultCommand() {
+      //  setDefaultCommand( new testDriveMotors() );
     }
 }
